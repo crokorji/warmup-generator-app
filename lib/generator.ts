@@ -74,11 +74,14 @@ export function generateWarmupPlan(input: WarmupInput): WarmupPlan {
   decisionLog.push(`Time available (${input.timeAvailable} min) set the overall complexity and drill count.`);
 
   blocks.push({
-    layer: 'Position',
-    goal: 'Organise ribcage, pelvis, and trunk before you ask for more range or force.',
-    why: 'Position gives the body a reference point. Warm tissue without orientation can still leak force or borrow motion from the wrong place.',
-    drills: input.timeAvailable <= 5 ? [exerciseLibrary.position.general[1]] : exerciseLibrary.position.general
-  });
+  layer: 'Position',
+  goal: 'Organise ribcage, pelvis, and trunk before you ask for more range or force.',
+  why: 'Position gives the body a reference point. Warm tissue without orientation can still leak force or borrow motion from the wrong place.',
+  drills:
+    input.timeAvailable <= 5
+      ? [exerciseLibrary.position.general[1]]
+      : [...exerciseLibrary.position.general]
+});
 
   blocks.push({
     layer: 'Access',
@@ -98,11 +101,11 @@ export function generateWarmupPlan(input: WarmupInput): WarmupPlan {
   if (includeExpress) {
     const expressKey = inferExpressBucket(input.goal, input.sessionFocus);
     blocks.push({
-      layer: 'Express',
-      goal: 'Prime high-quality output without creating fatigue.',
-      why: 'This layer prepares the nervous system for intent, speed, and crisp execution so early work sets do not feel like the real warm-up.',
-      drills: exerciseLibrary.express[expressKey]
-    });
+  layer: 'Express',
+  goal: 'Prime high-quality output without creating fatigue.',
+  why: 'This layer prepares the nervous system for intent, speed, and crisp execution so early work sets do not feel like the real warm-up.',
+  drills: [...exerciseLibrary.express[expressKey]]
+});
   } else {
     decisionLog.push('Express was reduced or removed because either time was very short or pain level called for a lower-threat entry into the session.');
   }
