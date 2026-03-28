@@ -1,20 +1,40 @@
 import { exerciseLibrary, inferExpressBucket } from './exercise-library';
 import { WarmupBlock, WarmupInput, WarmupPlan } from './types';
 
-function pickAccessDrills(input: WarmupInput) {
-  const picks = [] as WarmupBlock['drills'];
+function pickAccessDrills(input: WarmupInput): WarmupBlock['drills'] {
+  const picks: WarmupBlock['drills'] = [];
   const c = input.constraints || {};
 
   if (input.sessionFocus === 'squat' || input.sessionFocus === 'squat_bench' || c.ankleRestriction) {
     picks.push(exerciseLibrary.access.ankle[0]);
   }
-  if (input.sessionFocus === 'squat' || input.sessionFocus === 'hinge' || input.sessionFocus === 'lunge' || input.sessionFocus === 'squat_bench' || c.hipRestriction) {
+
+  if (
+    input.sessionFocus === 'squat' ||
+    input.sessionFocus === 'hinge' ||
+    input.sessionFocus === 'lunge' ||
+    input.sessionFocus === 'squat_bench' ||
+    c.hipRestriction
+  ) {
     picks.push(exerciseLibrary.access.hip[0]);
   }
-  if (input.sessionFocus === 'bench' || input.sessionFocus === 'push' || input.sessionFocus === 'pull' || input.sessionFocus === 'squat_bench' || c.tSpineRestriction) {
+
+  if (
+    input.sessionFocus === 'bench' ||
+    input.sessionFocus === 'push' ||
+    input.sessionFocus === 'pull' ||
+    input.sessionFocus === 'squat_bench' ||
+    c.tSpineRestriction
+  ) {
     picks.push(exerciseLibrary.access.tSpine[0]);
   }
-  if (input.sessionFocus === 'bench' || input.sessionFocus === 'push' || input.sessionFocus === 'squat_bench' || c.shoulderRestriction) {
+
+  if (
+    input.sessionFocus === 'bench' ||
+    input.sessionFocus === 'push' ||
+    input.sessionFocus === 'squat_bench' ||
+    c.shoulderRestriction
+  ) {
     picks.push(exerciseLibrary.access.shoulder[0]);
   }
 
@@ -25,8 +45,9 @@ function pickAccessDrills(input: WarmupInput) {
   return picks.slice(0, input.timeAvailable <= 10 ? 2 : 3);
 }
 
-function pickIntegrateDrills(input: WarmupInput) {
-  const drills = [] as WarmupBlock['drills'];
+function pickIntegrateDrills(input: WarmupInput): WarmupBlock['drills'] {
+  const drills: WarmupBlock['drills'] = [];
+
   switch (input.sessionFocus) {
     case 'squat':
       drills.push(...exerciseLibrary.integrate.squat.slice(0, 2));
@@ -35,7 +56,11 @@ function pickIntegrateDrills(input: WarmupInput) {
       drills.push(...exerciseLibrary.integrate.bench.slice(0, 3));
       break;
     case 'squat_bench':
-      drills.push(exerciseLibrary.integrate.squat[1], exerciseLibrary.integrate.bench[0], exerciseLibrary.integrate.bench[2]);
+      drills.push(
+        exerciseLibrary.integrate.squat[1],
+        exerciseLibrary.integrate.bench[0],
+        exerciseLibrary.integrate.bench[2]
+      );
       break;
     case 'hinge':
       drills.push(...exerciseLibrary.integrate.hinge);
@@ -69,19 +94,23 @@ export function generateWarmupPlan(input: WarmupInput): WarmupPlan {
     layer: 'Prepare',
     goal: 'Move from passive to training-ready with minimal fatigue.',
     why: 'This layer raises temperature and basic arousal so later mobility, positioning, and pattern work land better.',
-    drills: input.timeAvailable <= 5 ? [exerciseLibrary.prepare.general[0]] : [exerciseLibrary.prepare.general[0], exerciseLibrary.prepare.general[2]]
+    drills:
+      input.timeAvailable <= 5
+        ? [exerciseLibrary.prepare.general[0]]
+        : [exerciseLibrary.prepare.general[0], exerciseLibrary.prepare.general[2]]
   });
+
   decisionLog.push(`Time available (${input.timeAvailable} min) set the overall complexity and drill count.`);
 
   blocks.push({
-  layer: 'Position',
-  goal: 'Organise ribcage, pelvis, and trunk before you ask for more range or force.',
-  why: 'Position gives the body a reference point. Warm tissue without orientation can still leak force or borrow motion from the wrong place.',
-  drills:
-    input.timeAvailable <= 5
-      ? [exerciseLibrary.position.general[1]]
-      : [...exerciseLibrary.position.general]
-});
+    layer: 'Position',
+    goal: 'Organise ribcage, pelvis, and trunk before you ask for more range or force.',
+    why: 'Position gives the body a reference point. Warm tissue without orientation can still leak force or borrow motion from the wrong place.',
+    drills:
+      input.timeAvailable <= 5
+        ? [exerciseLibrary.position.general[1]]
+        : [...exerciseLibrary.position.general]
+  });
 
   blocks.push({
     layer: 'Access',
@@ -98,26 +127,38 @@ export function generateWarmupPlan(input: WarmupInput): WarmupPlan {
   });
 
   const includeExpress = input.timeAvailable >= 10 && input.pain !== 'moderate';
+
   if (includeExpress) {
     const expressKey = inferExpressBucket(input.goal, input.sessionFocus);
+
     blocks.push({
-  layer: 'Express',
-  goal: 'Prime high-quality output without creating fatigue.',
-  why: 'This layer prepares the nervous system for intent, speed, and crisp execution so early work sets do not feel like the real warm-up.',
-  drills: [...exerciseLibrary.express[expressKey]]
-});
+      layer: 'Express',
+      goal: 'Prime high-quality output without creating fatigue.',
+      why: 'This layer prepares the nervous system for intent, speed, and crisp execution so early work sets do not feel like the real warm-up.',
+      drills: [...exerciseLibrary.express[expressKey]]
+    });
   } else {
-    decisionLog.push('Express was reduced or removed because either time was very short or pain level called for a lower-threat entry into the session.');
+    decisionLog.push(
+      'Express was reduced or removed because either time was very short or pain level called for a lower-threat entry into the session.'
+    );
   }
 
   if (input.pain !== 'none') {
-    decisionLog.push(`Pain level was set to ${input.pain}, so the plan biases cleaner movement and lower-impact choices over aggressive potentiation.`);
+    decisionLog.push(
+      `Pain level was set to ${input.pain}, so the plan biases cleaner movement and lower-impact choices over aggressive potentiation.`
+    );
   }
+
   if (input.readiness === 'low') {
-    decisionLog.push('Readiness was low, so the plan leans on simple drills and avoids unnecessary complexity.');
+    decisionLog.push(
+      'Readiness was low, so the plan leans on simple drills and avoids unnecessary complexity.'
+    );
   }
+
   if (input.goal === 'powerlifting') {
-    decisionLog.push('Powerlifting selected: pattern rehearsal and bar-specific intent matter more than large mobility circuits.');
+    decisionLog.push(
+      'Powerlifting selected: pattern rehearsal and bar-specific intent matter more than large mobility circuits.'
+    );
   }
 
   return {
